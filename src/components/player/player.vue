@@ -135,7 +135,8 @@
         currentLineNum: 0,
         currentShow: 'cd',
         playingLyric: '',
-        favoriteTip: ''
+        favoriteTip: '',
+        nolyric: false
       }
     },
     created() {
@@ -311,6 +312,14 @@
             return
           }
           this.currentLyric = new Lyric(lyric, this.handleLyric)
+          // 如果没有歌词
+          if (!this.currentLyric.lines.length) {
+            let nolyric = this.currentLyric.lrc
+            nolyric = nolyric.split(']')[1]
+            this.currentLyric.lines.push({txt: nolyric})
+            this.nolyric = true
+          } 
+
           if (this.playing) {
             this.currentLyric.play()
           }
@@ -321,7 +330,14 @@
         })
       },
       handleLyric({lineNum, txt}) {
+        console.log(lineNum)
         this.currentLineNum = lineNum
+        if (this.nolyric) {
+          this.$refs.lyricLine[0].style.marginTop = '160px'
+          this.nolyric = false
+        } else {
+          this.$refs.lyricLine[0].style.marginTop = ''
+        }
         if (lineNum > 5) {
           let lineEl = this.$refs.lyricLine[lineNum - 5]
           this.$refs.lyricList.scrollToElement(lineEl, 1000)
